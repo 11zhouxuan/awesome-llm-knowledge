@@ -1,0 +1,147 @@
+# Awesome LLM Knowledge
+
+[![Awesome](https://awesome.re/badge.svg)](https://awesome.re)
+
+系统整理 LLM 结合外部知识的主要使用范式，涵盖 2020-2026 年的代表性研究工作。
+
+## 目录
+
+- [概述](#概述)
+- [范式一：LLM 驱动的知识索引构建](#范式一llm-驱动的知识索引构建)
+  - [图谱构建（二元关系）](#图谱构建二元关系)
+  - [N元关系与超图](#n元关系与超图)
+  - [本体驱动的知识约束](#本体驱动的知识约束)
+  - [层次结构索引](#层次结构索引)
+- [范式二：无向量检索 (Vectorless / Embedding-Free)](#范式二无向量检索-vectorless--embedding-free)
+  - [推理式检索](#推理式检索)
+  - [关键词/Grep式检索](#关键词grep式检索)
+  - [实时全文搜索](#实时全文搜索)
+- [范式三：智能体驱动的检索与生成](#范式三智能体驱动的检索与生成)
+- [范式四：知识即参数 (Knowledge as Parameters)](#范式四知识即参数-knowledge-as-parameters)
+- [范式五：持久化知识构建](#范式五持久化知识构建)
+- [综述与基准](#综述与基准)
+- [详细解读](#详细解读)
+
+---
+
+## 概述
+
+传统 RAG（Lewis et al., 2020）确立了"参数记忆 + 非参数记忆"的二元架构。6 年来，这一单一范式演化为多种并存的知识使用方式。本仓库按以下五大范式组织文献：
+
+| 范式 | 核心思想 | 代表工作 |
+|------|----------|----------|
+| LLM-Powered Indexing | LLM 离线将文本转为结构化知识 | GraphRAG, LightRAG, HyperGraphRAG |
+| Vectorless | 用推理/关键词/实时搜索替代向量 | PageIndex, Sirchmunk |
+| Agentic | 检索是多轮决策过程 | GlobalRAG, KnowLP |
+| Knowledge as Parameters | 知识预压缩为模型参数 | Doc-to-LoRA, MeMo |
+| Persistent Knowledge | 预构建持久化知识库 | LLM Wiki, Google OKF |
+
+---
+
+## 范式一：LLM 驱动的知识索引构建
+
+用 LLM 在离线阶段将非结构化文本转化为结构化知识表示，检索时利用结构而非仅靠语义相似度。
+
+### 图谱构建（二元关系）
+
+- **[GraphRAG](https://arxiv.org/abs/2404.16130)** (Microsoft, 2024) — 使用 Leiden 算法进行层次化社区检测并生成社区摘要，在全局综合任务上表现优异（72-83% 提升），但索引成本极高（~$33K/次重建）。 [[详细解读]](docs/graphrag_vs_hipporag_vs_pathrag_vs_og_rag.md)
+
+- **[LightRAG](https://arxiv.org/abs/2410.05779)** (北邮/港大, 2024) — 双层检索（Low-level 具体查询 + High-level 抽象查询）结合增量更新机制，单次 API 调用 <100 tokens 完成检索，成本降低数千倍。 [[代码]](https://github.com/HKUDS/LightRAG) [[详细解读]](docs/lightrag.md)
+
+- **[UnWeaver](https://arxiv.org/abs/2603.29875)** (Samsung AI Warsaw, 2026) — 仅抽取实体（不构建完整图谱），以 1/17 的成本达到 GraphRAG 级效果。核心论点：VectorRAG 几乎就够了，图谱复杂度被高估。 [[详细解读]](docs/unweaver.md)
+
+### N元关系与超图
+
+- **[HyperGraphRAG](https://arxiv.org/abs/2503.21322)** (北邮/NTU, 2025) — 用超边表示 n 元关系，突破二元关系限制。信息论证明二元图对 3+ 实体事实必然有损。F1 平均提升 +7.45，构建成本仅 $0.006/1k tokens。 [[详细解读]](docs/hypergraphrag.md)
+
+- **[OG-RAG](https://arxiv.org/abs/2412.15235)** (Microsoft Research, 2024) — 本体约束的超图表示，事实召回提升 55%，回答正确性提升 40%。需要预定义领域本体，适合强监管领域。 [[详细解读]](docs/og_rag.md)
+
+### 本体驱动的知识约束
+
+- **[OMD-GraphRAG](https://arxiv.org/abs/2603.25152)** (中国联通, 2025) — 本体引导抽取 + 多维聚类 + 双通道融合检索。三个模块各贡献约 3% F1 提升，组合达 +9.21%（vs LightRAG）。证明本体在抽取阶段的杠杆效应最高。 [[详细解读]](docs/omd_graphrag.md)
+
+### 层次结构索引
+
+- **[BookRAG](https://arxiv.org/abs/2512.03413)** (2025) — 保留文档原生层次结构（章节/节/小节）的索引方法，利用结构关系改善检索精度。 [[详细解读]](docs/bookrag.md)
+
+- **[GlobalRAG](https://arxiv.org/abs/2510.26205)** (复旦, 2025) — 提出 GlobalQA 基准（13,000+ QA 对），揭示现有方法在全局聚合任务上仅达 1.51 F1。文档级检索 + 智能过滤 + 符号计算工具实现 6.63 F1（+339%）。 [[详细解读]](docs/globalrag.md)
+
+---
+
+## 范式二：无向量检索 (Vectorless / Embedding-Free)
+
+拒绝"先嵌入-再检索"的预计算范式，用推理、关键词搜索或结构导航替代向量相似度。
+
+### 推理式检索
+
+- **[PageIndex](https://pageindex.ai/blog/pageindex-intro)** (2025) — LLM 通过 JSON 层次索引逐步推理导航，五步迭代检索。无需向量数据库，理解深层含义并跟踪交叉引用。 [[详细解读]](docs/pageindex.md)
+
+### 关键词/Grep式检索
+
+- **[Keyword Search is All You Need](https://arxiv.org/abs/2602.23368)** (Amazon Science, 2026) — 智能体关键词搜索（rga/pdfgrep）在无向量数据库条件下达到 RAG 90%+ 性能，FinanceBench 上甚至超越传统 RAG。 [[详细解读]](docs/keyword_search_agentic.md)
+
+- **[Is Grep All You Need?](https://arxiv.org/abs/2605.15184)** (PwC, 2026) — Grep 在 inline 交付模式下一致优于 vector 检索。更换 Agent Harness 的影响 ≈ 更换检索器。证明对精确回忆任务，词法匹配 > 语义匹配。 [[详细解读]](docs/grep_vs_vector.md)
+
+### 实时全文搜索
+
+- **[Sirchmunk](https://modelscope.github.io/sirchmunk-web/zh/blog/technical-deep-dive/)** (ModelScope, 2026) — 开源无嵌入搜索引擎，基于 ripgrep-all（100+ 格式）+ 蒙特卡洛证据采样（探索-利用平衡 + 模拟退火收敛）+ ReAct Agent 容错。FAST 模式 2-5 秒。 [[代码]](https://github.com/modelscope/sirchmunk) [[详细解读]](docs/sirchmunk.md)
+
+---
+
+## 范式三：智能体驱动的检索与生成
+
+检索不是单次操作，而是多轮决策过程。LLM Agent 自主决定何时检索、检索什么、何时停止。
+
+- **[GlobalRAG](https://arxiv.org/abs/2510.26205)** (复旦, 2025) — LLM + 符号计算工具（计数/极值/排序/Top-K）。证明纯 LLM 在全局聚合任务上失败，需要程序化工具辅助。移除聚合工具后 F1 下降 79.2%。 [[详细解读]](docs/globalrag.md)
+
+- **[KnowLP](https://arxiv.org/abs/2506.22303)** (暨南大学/Griffith, 2025) — GraphRAG 用于个性化学习路径推荐。多智能体协作：P-Agent（前置路径）+ S-Agent（相似绕道）+ D-Agent（难度匹配）。在 Junyi 数据集上比次优方法提升 46.7%。 [[详细解读]](docs/knowlp.md)
+
+- **[Is Grep All You Need?](https://arxiv.org/abs/2605.15184)** (PwC, 2026) — 揭示 Agent Harness 设计比检索算法更关键。工具输出的呈现方式（inline vs file）可以完全反转检索策略的优劣。 [[详细解读]](docs/grep_vs_vector.md)
+
+---
+
+## 范式四：知识即参数 (Knowledge as Parameters)
+
+不在运行时检索知识，而是将知识预先压缩为模型参数。介于 RAG 和 Fine-tuning 之间的"第三条路"。
+
+- **[Doc-to-LoRA](https://arxiv.org/abs/2602.15902)** (Sakana AI, ICML 2026) — 超网络单次前向传播生成 LoRA 适配器注入主模型，突破原生窗口 4x+ 仍保持接近完美准确率。推理时零额外延迟，但需要访问模型权重。 [[代码]](https://github.com/SakanaAI/doc-to-lora) [[详细解读]](docs/doc_to_lora.md)
+
+- **[MeMo](https://arxiv.org/abs/2605.15156)** (NUS/东京大学/MIT CSAIL, 2025) — 训练独立的 Memory Model 作为知识载体，主 LLM 完全冻结。支持黑盒 API 模型，噪声鲁棒（±1.77%），多语料可合并（K=10 时 5.5× 计算节省）。 [[详细解读]](docs/memo.md)
+
+---
+
+## 范式五：持久化知识构建
+
+不是每次查询时重新推导，而是预先构建和维护持久化的知识库。LLM 作为"知识构建者"而非仅是"知识检索器"。
+
+- **[LLM Wiki](https://github.com/nashsu/llm_wiki)** (2025, 13.1k stars) — 桌面应用，将文档自动转化为互联 Wiki 知识库。两步 CoT 摄入、Louvain 社区检测、增量缓存、图可视化。知识可读、可审计、可人工修正。 [[详细解读]](docs/llm_wiki.md)
+
+- **[Google Open Knowledge Format (OKF)](https://cloud.google.com/blog/products/data-analytics/how-the-open-knowledge-format-can-improve-data-sharing)** (Google Cloud, 2026) — 将 LLM-Wiki 模式标准化为供应商中立的开放规范。Markdown + YAML frontmatter + Git，零基础设施投入，从个人工具走向行业标准。 [[详细解读]](docs/google_okf.md)
+
+---
+
+## 综述与基准
+
+- **[Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks](https://arxiv.org/abs/2005.11401)** (Facebook AI Research, 2020) — RAG 开山之作。确立"参数记忆 + 非参数记忆"二元架构，626M 参数匹配 T5-11B 性能。后续所有 RAG 变体的起点。 [[详细解读]](docs/rag_original.md)
+
+- **[Retrieval-Augmented Generation with Graphs](https://arxiv.org/abs/2501.00309)** (2025, 18位研究者) — GraphRAG 领域综述，提出统一的分析框架（Query Processor → Retriever → Organizer → Generator → Data Source）。 [[详细解读]](docs/graphrag_survey.md)
+
+- **[GraphRAG vs HippoRAG vs PathRAG vs OG-RAG](https://medium.com/graph-praxis/graphrag-vs-hipporag-vs-pathrag-vs-og-rag-choosing-the-right-architecture-for-your-knowledge-graph-a4745e8b125f)** (2026) — 四种图谱 RAG 架构的实践对比与选型指南。 [[详细解读]](docs/graphrag_comparison.md)
+
+---
+
+## 详细解读
+
+每篇文献的详细研究报告在 [docs/](docs/) 目录下，包含方法细节、实验数据和核心洞察。
+
+---
+
+## 贡献
+
+欢迎提交 PR 补充相关文献。请遵循现有格式：
+- README 中添加一行简介（含论文链接、机构、年份、核心贡献）
+- docs/ 中添加详细解读文件
+
+## License
+
+MIT
