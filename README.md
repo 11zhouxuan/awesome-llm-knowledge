@@ -50,6 +50,10 @@
 
 - **[UnWeaver](https://arxiv.org/abs/2603.29875)** (Samsung AI Warsaw, 2026) — 仅抽取实体（不构建完整图谱），以 1/17 的成本达到 GraphRAG 级效果。核心论点：VectorRAG 几乎就够了，图谱复杂度被高估。 [[详细解读]](docs/unweaver.md)
 
+- **[LinearRAG](https://arxiv.org/abs/2510.10114)** (香港理工, 2025) — 用 spaCy NER 替代 LLM 关系抽取，构建三层图（实体-句子-段落）+ Personalized PageRank 检索。索引零 token 消耗，速度降低 77%+，在 2Wiki 上绝对提升 +3.80%。量化证明 GraphRAG 的关系抽取反而引入噪声。 [[代码]](https://github.com/DEEP-PolyU/LinearRAG) [[详细解读]](docs/linearrag.md)
+
+- **[FlowRAG](https://arxiv.org/abs/2606.17856)** (华东师范/上海AI实验室, 2026) — 四层异构图（段落-摘要-句子-实体）+ 双粒度实体激活 + 频率感知加权流。索引比 LightRAG 快 14x，token 消耗仅 2%，平均 GPT-Accuracy 58.89%（+1.72% vs LinearRAG）。 [[详细解读]](docs/flowrag.md)
+
 ### N元关系与超图
 
 - **[HyperGraphRAG](https://arxiv.org/abs/2503.21322)** (北邮/NTU, 2025) — 用超边表示 n 元关系，突破二元关系限制。信息论证明二元图对 3+ 实体事实必然有损。F1 平均提升 +7.45，构建成本仅 $0.006/1k tokens。 [[详细解读]](docs/hypergraphrag.md)
