@@ -132,6 +132,8 @@
 
 - **[GraphRAG vs HippoRAG vs PathRAG vs OG-RAG](https://medium.com/graph-praxis/graphrag-vs-hipporag-vs-pathrag-vs-og-rag-choosing-the-right-architecture-for-your-knowledge-graph-a4745e8b125f)** (2026) — 四种图谱 RAG 架构的实践对比与选型指南。 [[详细解读]](docs/graphrag_comparison.md)
 
+- **[Is GraphRAG Needed?](https://arxiv.org/abs/2606.25656)** (AWS + Cisco, 2026) — 9 种 RAG 场景的标准化评估框架。关键发现：基础 RAG + 1跳关系即可匹配 Agentic RAG；检索覆盖 83.5% 但 LLM 仅利用 47.9%（检索-生成鸿沟）；上下文优化可节省 19%-53% token。 [[详细解读]](docs/is_graphrag_needed.md)
+
 ---
 
 ## 详细解读
