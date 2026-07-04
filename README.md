@@ -19,6 +19,7 @@
 - [范式三：智能体驱动的检索与生成](#范式三智能体驱动的检索与生成)
 - [范式四：知识即参数 (Knowledge as Parameters)](#范式四知识即参数-knowledge-as-parameters)
 - [范式五：持久化知识构建](#范式五持久化知识构建)
+- [数据集与任务类型](#数据集与任务类型)
 - [综述与基准](#综述与基准)
 - [详细解读](#详细解读)
 
@@ -121,6 +122,32 @@
 - **[LLM Wiki](https://github.com/nashsu/llm_wiki)** (2025, 13.1k stars) — 桌面应用，将文档自动转化为互联 Wiki 知识库。两步 CoT 摄入、Louvain 社区检测、增量缓存、图可视化。知识可读、可审计、可人工修正。 [[详细解读]](docs/llm_wiki.md)
 
 - **[Google Open Knowledge Format (OKF)](https://cloud.google.com/blog/products/data-analytics/how-the-open-knowledge-format-can-improve-data-sharing)** (Google Cloud, 2026) — 将 LLM-Wiki 模式标准化为供应商中立的开放规范。Markdown + YAML frontmatter + Git，零基础设施投入，从个人工具走向行业标准。 [[详细解读]](docs/google_okf.md)
+
+---
+
+## 数据集与任务类型
+
+不同 RAG 方法适用于不同类型的查询任务。详细整理见 [[完整文档]](docs/datasets_and_tasks.md)。
+
+### 任务类型速查
+
+| 任务类型 | 典型问题 | 最佳方法 | 代表数据集 |
+|----------|----------|----------|-----------|
+| 单跳事实 | "X公司的CEO是谁？" | 向量RAG / 关键词搜索 | Natural Questions, TriviaQA |
+| 多跳推理 | "A的导师在哪家公司工作？" | LightRAG / FlowRAG / HyperGraphRAG | HotpotQA, MuSiQue |
+| 全局聚合 | "薪资最高的5位员工？" | GlobalRAG (Doc-level + 符号工具) | GlobalQA (13K+ QA) |
+| Schema约束 | "符合指南X的治疗方案？" | OG-RAG / OMD-GraphRAG | Agriculture, Medical |
+| N元关系 | "医生X用药物Y治疗患者Z？" | HyperGraphRAG | 5域×512题自建基准 |
+| 路径推理 | "从A到B的因果链？" | PathRAG / FlowRAG | HotpotQA, 2Wiki |
+| 长文档理解 | "第3.2节关于X的例外？" | BookRAG / PageIndex / Doc-to-LoRA | NarrativeQA, NIAH |
+| 精确回忆 | "合同第X条原文？" | Grep / 关键词搜索 | LongMemEval, FinanceBench |
+| 时间推理 | "X和Y之间发生了什么？" | 所有方法均弱（最好 65% F1） | MultiHop-RAG temporal |
+
+### 关键发现
+
+- **检索-生成鸿沟:** 检索覆盖 83.5%，LLM 仅利用 47.9%——更多检索 ≠ 更好生成 (AWS+Cisco 2026)
+- **图谱有效区间:** 多跳推理（2-3x 提升）和 N 元关系（+7.45 F1）明确有效；单跳事实无收益
+- **图谱可能有害:** 关系抽取噪声可使性能低于 vanilla RAG（36-54% vs 62.87% 上下文相关性）
 
 ---
 
