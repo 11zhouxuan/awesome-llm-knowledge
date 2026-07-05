@@ -19,6 +19,7 @@
 - [范式三：智能体驱动的检索与生成](#范式三智能体驱动的检索与生成)
 - [范式四：知识即参数 (Knowledge as Parameters)](#范式四知识即参数-knowledge-as-parameters)
 - [范式五：持久化知识构建](#范式五持久化知识构建)
+- [多模态/视觉 RAG](#多模态视觉-ragmultimodal--visual-rag)
 - [数据集与任务类型](#数据集与任务类型)
 - [综述与基准](#综述与基准)
 - [详细解读](#详细解读)
@@ -122,6 +123,20 @@
 - **[LLM Wiki](https://github.com/nashsu/llm_wiki)** (2025, 13.1k stars) — 桌面应用，将文档自动转化为互联 Wiki 知识库。两步 CoT 摄入、Louvain 社区检测、增量缓存、图可视化。知识可读、可审计、可人工修正。 [[详细解读]](docs/llm_wiki.md)
 
 - **[Google Open Knowledge Format (OKF)](https://cloud.google.com/blog/products/data-analytics/how-the-open-knowledge-format-can-improve-data-sharing)** (Google Cloud, 2026) — 将 LLM-Wiki 模式标准化为供应商中立的开放规范。Markdown + YAML frontmatter + Git，零基础设施投入，从个人工具走向行业标准。 [[详细解读]](docs/google_okf.md)
+
+---
+
+## 多模态/视觉 RAG（Multimodal & Visual RAG）
+
+将知识的表示形态从纯文本扩展到视觉像素——跳过文本解析，直接在图像空间中完成检索和阅读。这是正交于上述五大范式的**知识表示维度**创新。
+
+- **[PixelRAG](https://arxiv.org/abs/2606.28344)** (UC Berkeley, 2026) — 将网页渲染为截图，用视觉嵌入模型（Qwen3-VL-Embedding + LoRA）在 30M Wikipedia 截图上检索，VLM 直接从图像阅读。比文本 RAG 提升高达 18.1%，即使在纯文本任务（NQ、SimpleQA）上也更好。 [[代码]](https://github.com/StarTrail-org/PixelRAG) [[详细解读]](docs/pixelrag.md)
+
+- **[MAGE-RAG](https://arxiv.org/abs/2606.15906)** (2026) — 长文档多模态 QA 的自适应图证据框架。构建动态证据图（页面节点+元素节点，编码包含/阅读顺序/布局邻接/语义关系），Agent 在预算约束下迭代选择-扩展-过滤证据子图。LongDocURL 52.75%，MMLongBench-Doc 53.26%。 [[代码]](https://github.com/laonuo2004/MAGE-RAG)
+
+- **[MM-BizRAG](https://arxiv.org/abs/2606.04231)** (ACL 2026 Industry) — 企业级多模态 RAG。针对复杂企业文档（报告/PPT/表格）的结构感知管道：方向特定的摄入流水线（竖版用布局解析，横版用整体表示）+ LLM 驱动的工件转换。比纯视觉基线提升高达 32 个百分点。
+
+- **[Multimodal Graph RAG](https://arxiv.org/abs/2606.28780)** (2026) — 结合多模态知识图谱与 RAG 实现长程视觉文档理解。提出 DLVQA 基准用于文档级视觉 QA，解决需要全文档理解的跨页面视觉问答。
 
 ---
 
