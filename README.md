@@ -19,7 +19,7 @@
 - [范式三：智能体驱动的检索与生成](#范式三智能体驱动的检索与生成)
 - [范式四：知识即参数 (Knowledge as Parameters)](#范式四知识即参数-knowledge-as-parameters)
 - [范式五：持久化知识构建](#范式五持久化知识构建)
-- [多模态/视觉 RAG](#多模态视觉-ragmultimodal--visual-rag)
+- [范式六：视觉检索（Visual RAG）](#范式六视觉检索visual-rag)
 - [数据集与任务类型](#数据集与任务类型)
 - [综述与基准](#综述与基准)
 - [详细解读](#详细解读)
@@ -37,6 +37,7 @@
 | Agentic | 检索是多轮决策过程 | GlobalRAG, KnowLP |
 | Knowledge as Parameters | 知识预压缩为模型参数 | Doc-to-LoRA, MeMo |
 | Persistent Knowledge | 预构建持久化知识库 | LLM Wiki, Google OKF |
+| Visual RAG | 视觉表示替代文本解析 | PixelRAG, MAGE-RAG, MM-BizRAG |
 
 ---
 
@@ -126,9 +127,9 @@
 
 ---
 
-## 多模态/视觉 RAG（Multimodal & Visual RAG）
+## 范式六：视觉检索（Visual RAG）
 
-将知识的表示形态从纯文本扩展到视觉像素——跳过文本解析，直接在图像空间中完成检索和阅读。这是正交于上述五大范式的**知识表示维度**创新。
+用视觉表示替代文本解析作为知识载体——跳过 HTML/PDF 解析，直接在像素空间中完成嵌入、检索和阅读。改变了知识的存在形态（文本→图像）、嵌入方式（文本Embedding→视觉Embedding）和阅读方式（LLM→VLM）。
 
 - **[PixelRAG](https://arxiv.org/abs/2606.28344)** (UC Berkeley, 2026) — 将网页渲染为截图，用视觉嵌入模型（Qwen3-VL-Embedding + LoRA）在 30M Wikipedia 截图上检索，VLM 直接从图像阅读。比文本 RAG 提升高达 18.1%，即使在纯文本任务（NQ、SimpleQA）上也更好。 [[代码]](https://github.com/StarTrail-org/PixelRAG) [[详细解读]](docs/pixelrag.md)
 
