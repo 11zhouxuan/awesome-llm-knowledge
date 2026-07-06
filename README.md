@@ -20,6 +20,7 @@
 - [范式三：智能体驱动的检索与生成](#范式三智能体驱动的检索与生成)
 - [范式四：知识即参数 (Knowledge as Parameters)](#范式四知识即参数-knowledge-as-parameters)
 - [范式五：视觉检索（Visual RAG）](#范式五视觉检索visual-rag)
+- [工业界知识库产品](#工业界知识库产品enterprise-knowledge-products)
 - [数据集与任务类型](#数据集与任务类型)
 - [综述与基准](#综述与基准)
 - [详细解读](#详细解读)
