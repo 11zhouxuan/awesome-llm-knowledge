@@ -176,6 +176,8 @@
 
 - **[Is GraphRAG Needed?](https://arxiv.org/abs/2606.25656)** (AWS + Cisco, 2026) — 9 种 RAG 场景的标准化评估框架。关键发现：基础 RAG + 1跳关系即可匹配 Agentic RAG；检索覆盖 83.5% 但 LLM 仅利用 47.9%（检索-生成鸿沟）；上下文优化可节省 19%-53% token。 [[详细解读]](docs/is_graphrag_needed.md)
 
+- **[Do We Still Need GraphRAG? (RAGSearch)](https://arxiv.org/abs/2604.09666)** (NYU Shanghai, 2025) — 统一基准对比 Dense RAG vs 5种 GraphRAG × 4种 Agent 推理范式。最关键发现：**通用 QA 上 GraphRAG 无优势（差距仅 +0.47），多跳 QA 上 GraphRAG 大幅领先（+27.23）**。Agent 迭代搜索可缩小约 1/3 差距但无法替代图结构。HippoRAG2 在多跳基准上最强且最稳定。 [[详细解读]](docs/ragsearch_benchmark.md)
+
 ---
 
 ## 详细解读
