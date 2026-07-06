@@ -7,19 +7,19 @@
 ## 目录
 
 - [概述](#概述)
-- [范式一：LLM 驱动的知识索引构建](#范式一llm-驱动的知识索引构建)
+- [范式一：LLM 驱动的知识提炼](#范式一llm-驱动的知识提炼llm-powered-indexing)
   - [图谱构建（二元关系）](#图谱构建二元关系)
   - [N元关系与超图](#n元关系与超图)
   - [本体驱动的知识约束](#本体驱动的知识约束)
   - [层次结构索引](#层次结构索引)
+  - [Wiki / 持久化知识格式](#wiki--持久化知识格式)
 - [范式二：无向量检索 (Vectorless / Embedding-Free)](#范式二无向量检索-vectorless--embedding-free)
   - [推理式检索](#推理式检索)
   - [关键词/Grep式检索](#关键词grep式检索)
   - [实时全文搜索](#实时全文搜索)
 - [范式三：智能体驱动的检索与生成](#范式三智能体驱动的检索与生成)
 - [范式四：知识即参数 (Knowledge as Parameters)](#范式四知识即参数-knowledge-as-parameters)
-- [范式五：持久化知识构建](#范式五持久化知识构建)
-- [范式六：视觉检索（Visual RAG）](#范式六视觉检索visual-rag)
+- [范式五：视觉检索（Visual RAG）](#范式五视觉检索visual-rag)
 - [数据集与任务类型](#数据集与任务类型)
 - [综述与基准](#综述与基准)
 - [详细解读](#详细解读)
@@ -32,18 +32,17 @@
 
 | 范式 | 核心思想 | 代表工作 |
 |------|----------|----------|
-| LLM-Powered Indexing | LLM 离线将文本转为结构化知识 | GraphRAG, LightRAG, HyperGraphRAG |
+| LLM-Powered Indexing | LLM 离线提炼知识为结构化表示 | GraphRAG, LightRAG, HyperGraphRAG, LLM Wiki, OKF |
 | Vectorless | 用推理/关键词/实时搜索替代向量 | PageIndex, Sirchmunk |
 | Agentic | 检索是多轮决策过程 | GlobalRAG, KnowLP |
 | Knowledge as Parameters | 知识预压缩为模型参数 | Doc-to-LoRA, MeMo |
-| Persistent Knowledge | 预构建持久化知识库 | LLM Wiki, Google OKF |
 | Visual RAG | 视觉表示替代文本解析 | PixelRAG, MAGE-RAG, MM-BizRAG |
 
 ---
 
-## 范式一：LLM 驱动的知识索引构建
+## 范式一：LLM 驱动的知识提炼（LLM-Powered Indexing）
 
-用 LLM 在离线阶段将非结构化文本转化为结构化知识表示，检索时利用结构而非仅靠语义相似度。
+用 LLM 在离线阶段对文档进行知识提炼，输出为结构化表示（图谱、超图、Wiki 页面等）。核心是"LLM 作为知识构建者"——不同方法的区别在于输出格式和组织方式。
 
 ### 图谱构建（二元关系）
 
@@ -71,7 +70,17 @@
 
 - **[BookRAG](https://arxiv.org/abs/2512.03413)** (2025) — 保留文档原生层次结构（章节/节/小节）的索引方法，利用结构关系改善检索精度。 [[详细解读]](docs/bookrag.md)
 
+- **[PageIndex](https://pageindex.ai/blog/pageindex-intro)** (2025) — LLM 构建 JSON 层次索引（ID/名称/描述/子节点），保留文档原生结构供推理导航。*（也属于范式二：推理式检索）* [[详细解读]](docs/pageindex.md)
+
 - **[GlobalRAG](https://arxiv.org/abs/2510.26205)** (复旦, 2025) — 提出 GlobalQA 基准（13,000+ QA 对），揭示现有方法在全局聚合任务上仅达 1.51 F1。文档级检索 + 智能过滤 + 符号计算工具实现 6.63 F1（+339%）。 [[详细解读]](docs/globalrag.md)
+
+### Wiki / 持久化知识格式
+
+LLM 提炼的知识不一定要存为图谱——输出为人类可读的 Wiki 页面，实现知识复用、可审计和人机协同编辑。
+
+- **[LLM Wiki](https://github.com/nashsu/llm_wiki)** (2025, 13.1k stars) — 桌面应用，将文档自动转化为互联 Wiki 知识库。两步 CoT 摄入、Louvain 社区检测、增量缓存、图可视化。知识可读、可审计、可人工修正。 [[详细解读]](docs/llm_wiki.md)
+
+- **[Google Open Knowledge Format (OKF)](https://cloud.google.com/blog/products/data-analytics/how-the-open-knowledge-format-can-improve-data-sharing)** (Google Cloud, 2026) — 将 LLM-Wiki 模式标准化为供应商中立的开放规范。Markdown + YAML frontmatter + Git，零基础设施投入，从个人工具走向行业标准。 [[详细解读]](docs/google_okf.md)
 
 ---
 
@@ -81,7 +90,7 @@
 
 ### 推理式检索
 
-- **[PageIndex](https://pageindex.ai/blog/pageindex-intro)** (2025) — LLM 通过 JSON 层次索引逐步推理导航，五步迭代检索。无需向量数据库，理解深层含义并跟踪交叉引用。 [[详细解读]](docs/pageindex.md)
+- **[PageIndex](https://pageindex.ai/blog/pageindex-intro)** (2025) — LLM 通过 JSON 层次索引逐步推理导航，五步迭代检索。无需向量数据库，理解深层含义并跟踪交叉引用。*（也属于范式一：层次结构索引）* [[详细解读]](docs/pageindex.md)
 
 ### 关键词/Grep式检索
 
@@ -117,17 +126,7 @@
 
 ---
 
-## 范式五：持久化知识构建
-
-不是每次查询时重新推导，而是预先构建和维护持久化的知识库。LLM 作为"知识构建者"而非仅是"知识检索器"。
-
-- **[LLM Wiki](https://github.com/nashsu/llm_wiki)** (2025, 13.1k stars) — 桌面应用，将文档自动转化为互联 Wiki 知识库。两步 CoT 摄入、Louvain 社区检测、增量缓存、图可视化。知识可读、可审计、可人工修正。 [[详细解读]](docs/llm_wiki.md)
-
-- **[Google Open Knowledge Format (OKF)](https://cloud.google.com/blog/products/data-analytics/how-the-open-knowledge-format-can-improve-data-sharing)** (Google Cloud, 2026) — 将 LLM-Wiki 模式标准化为供应商中立的开放规范。Markdown + YAML frontmatter + Git，零基础设施投入，从个人工具走向行业标准。 [[详细解读]](docs/google_okf.md)
-
----
-
-## 范式六：视觉检索（Visual RAG）
+## 范式五：视觉检索（Visual RAG）
 
 用视觉表示替代文本解析作为知识载体——跳过 HTML/PDF 解析，直接在像素空间中完成嵌入、检索和阅读。改变了知识的存在形态（文本→图像）、嵌入方式（文本Embedding→视觉Embedding）和阅读方式（LLM→VLM）。
 
